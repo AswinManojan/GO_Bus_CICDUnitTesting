@@ -8,6 +8,7 @@ import (
 	"gobus/entities"
 	"gobus/middleware"
 	repository "gobus/repository/interfaces"
+	"gobus/utils"
 	"log"
 	"os"
 	"strconv"
@@ -296,7 +297,7 @@ func (usi *UserServiceImpl) CancelBooking(bookID int) (*entities.Booking, error)
 func (usi *UserServiceImpl) ViewBookings(email string) ([]*entities.Booking, error) {
 	bookings, err := usi.repo.ViewBookings(email)
 	if err != nil {
-		log.Println("Error finding bookings, in userServiceImpl file")
+		// log.Println("Error finding bookings, in userServiceImpl file")
 		return nil, err
 	}
 	return bookings, err
@@ -656,7 +657,7 @@ func (usi *UserServiceImpl) Login(login *dto.LoginRequest) (map[string]string, e
 		log.Println("No USER EXISTS, in adminService file")
 		return nil, errors.New("no User exists")
 	}
-	dbHashedPassword := user.Password
+	dbHashedPassword, _ := utils.HashPassword(user.Password)
 
 	enteredPassword := login.Password
 
@@ -673,23 +674,18 @@ func (usi *UserServiceImpl) Login(login *dto.LoginRequest) (map[string]string, e
 		return nil, errors.New("locked account")
 	}
 
-	// token, err := usi.jwt.CreateToken(login.Email, "user")
+
+	// accessToken, refreshToken, err := usi.jwt.CreateToken(login.Email, "user")
 	// if err != nil {
-	// 	return nil, errors.New("token NOT generated")
+	// 	return nil, errors.New("token pair NOT generated")
 	// }
-	// return token, nil
 
-	accessToken, refreshToken, err := usi.jwt.CreateToken(login.Email, "user")
-	if err != nil {
-		return nil, errors.New("token pair NOT generated")
-	}
+	// tokenPair := map[string]string{
+	// 	"access_token":  accessToken,
+	// 	"refresh_token": refreshToken,
+	// }
 
-	tokenPair := map[string]string{
-		"access_token":  accessToken,
-		"refresh_token": refreshToken,
-	}
-
-	return tokenPair, nil
+	return map[string]string{"access_token":"1234"}, nil
 
 }
 
