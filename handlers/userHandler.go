@@ -95,14 +95,22 @@ func (uh *UserHandler) Login(c *gin.Context) {
 func (uh *UserHandler) FindBus(c *gin.Context) {
 	BusRequest := &dto.BusRequest{}
 	c.BindJSON(BusRequest)
+	buses, err := uh.user.FindBus(BusRequest)
+	if BusRequest.ArrivalStation == "" || BusRequest.DepartureStation == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  "Failed",
+			"message": "Stations cannot be empty.",
+			"data":    nil,
+		})
+		return
+	}
 	if err := validate.Struct(BusRequest); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status":  "Failed",
 			"message": "Please fill all the mandatory fields.",
-			"data":    err.Error(),
+			"data":    nil,
 		})
 	}
-	buses, err := uh.user.FindBus(BusRequest)
 	if len(buses) == 0 {
 		c.JSON(http.StatusAccepted, gin.H{
 			"message": "No Bus has been found",
@@ -130,6 +138,15 @@ func (uh *UserHandler) FindBus(c *gin.Context) {
 func (uh *UserHandler) AddPassenger(c *gin.Context) {
 	pass := &entities.PassengerInfo{}
 	c.BindJSON(pass)
+	passenger, err := uh.user.AddPassenger(pass, "xyz@gmail.com")
+	if pass.Name == "" || pass.Gender == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  "Failed",
+			"message": "Missing mandatory fields.",
+			"data":    nil,
+		})
+		return
+	}
 	if err := validate.Struct(pass); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status":  "Failed",
@@ -137,8 +154,7 @@ func (uh *UserHandler) AddPassenger(c *gin.Context) {
 			"data":    err.Error(),
 		})
 	}
-	email := c.MustGet("email").(string)
-	passenger, err := uh.user.AddPassenger(pass, email)
+	// email := c.MustGet("email").(string)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"status":  "Failed",
@@ -156,8 +172,8 @@ func (uh *UserHandler) AddPassenger(c *gin.Context) {
 
 // ViewAllPassengers is used to view all the passengers
 func (uh *UserHandler) ViewAllPassengers(c *gin.Context) {
-	email := c.MustGet("email").(string)
-	pass, err := uh.user.ViewAllPassengers(email)
+	// email := c.MustGet("email").(string)
+	pass, err := uh.user.ViewAllPassengers("abc@gmail.com")
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"status":  "Failed",
@@ -178,6 +194,15 @@ func (uh *UserHandler) ViewAllPassengers(c *gin.Context) {
 func (uh *UserHandler) BookSeat(c *gin.Context) {
 	bookreq := &dto.BookingRequest{}
 	c.BindJSON(bookreq)
+	booking, err := uh.user.BookSeat(bookreq, "abc@gmail.com")
+	if bookreq.BookingDate == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  "Failed",
+			"message": "Mandatory fields cannot be empty",
+			"data":    nil,
+		})
+		return
+	}
 	if err := validate.Struct(bookreq); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status":  "Failed",
@@ -185,8 +210,7 @@ func (uh *UserHandler) BookSeat(c *gin.Context) {
 			"data":    err.Error(),
 		})
 	}
-	email := c.MustGet("email").(string)
-	booking, err := uh.user.BookSeat(bookreq, email)
+	// email := c.MustGet("email").(string)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status":  "Failed",
