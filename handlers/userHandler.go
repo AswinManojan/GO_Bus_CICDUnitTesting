@@ -58,6 +58,15 @@ func (uh *UserHandler) Home(c *gin.Context) {
 func (uh *UserHandler) Login(c *gin.Context) {
 	LoginRequest := &dto.LoginRequest{}
 	c.BindJSON(LoginRequest)
+	token, err := uh.user.Login(LoginRequest)
+	if LoginRequest.Password == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  "Failed",
+			"message": "Password cannot be empty.",
+			"data":    nil,
+		})
+		return
+	}
 	if err := validate.Struct(LoginRequest); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status":  "Failed",
@@ -65,7 +74,6 @@ func (uh *UserHandler) Login(c *gin.Context) {
 			"data":    err.Error(),
 		})
 	}
-	token, err := uh.user.Login(LoginRequest)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -364,7 +372,7 @@ func (uh *UserHandler) SuccessPage(c *gin.Context) {
 	})
 }
 
-//SubStationsDetails function is used to fetch the details of the sub station.
+// SubStationsDetails function is used to fetch the details of the sub station.
 func (uh *UserHandler) SubStationsDetails(c *gin.Context) {
 	parent := c.Query("location")
 	substations, err := uh.user.SubStationDetails(parent)
@@ -383,7 +391,7 @@ func (uh *UserHandler) SubStationsDetails(c *gin.Context) {
 	})
 }
 
-//IndexPage function is used to display the index page
+// IndexPage function is used to display the index page
 func (uh *UserHandler) IndexPage(c *gin.Context) {
 	c.HTML(http.StatusOK, "index.html", nil)
 }

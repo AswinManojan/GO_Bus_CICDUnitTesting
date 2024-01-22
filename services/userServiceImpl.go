@@ -8,8 +8,6 @@ import (
 	"gobus/entities"
 	"gobus/middleware"
 	repository "gobus/repository/interfaces"
-	"gobus/services/interfaces"
-	"gobus/utils"
 	"log"
 	"os"
 	"strconv"
@@ -20,6 +18,23 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 )
+
+type UserService interface {
+	Login(login *dto.LoginRequest) (map[string]string, error)
+	RegisterUser(user *entities.User) (*entities.User, error)
+	FindBus(request *dto.BusRequest) ([]*entities.BusesResp, error)
+	AddPassenger(passenger *entities.PassengerInfo, email string) (*entities.PassengerInfo, error)
+	ViewAllPassengers(email string) ([]*entities.PassengerInfo, error)
+	BookSeat(bookreq *dto.BookingRequest, email string) (*entities.Booking, error)
+	FindCoupon() ([]*entities.Coupons, error)
+	ViewBookings(email string) ([]*entities.Booking, error)
+	CancelBooking(bookID int) (*entities.Booking, error)
+	SeatAvailabilityChecker(seatReq *dto.SeatAvailabilityRequest) (*dto.SeatAvailabilityResponse, error)
+	MakePayment(bookID int) (*dto.MakePaymentResp, error)
+	PaymentSuccess(razor *entities.RazorPay) error
+	FindBookingByID(ID int) (*entities.Booking, error)
+	SubStationDetails(parent string) ([]string, error)
+}
 
 // UserServiceImpl struct is used to Implement the UserService.
 type UserServiceImpl struct {
@@ -678,16 +693,14 @@ func (usi *UserServiceImpl) Login(login *dto.LoginRequest) (map[string]string, e
 
 }
 
-var Hspass = utils.HashPassword
-
 // RegisterUser function is used to register the user with the hashed password.
 func (usi *UserServiceImpl) RegisterUser(user *entities.User) (*entities.User, error) {
-	hashedPassword, err := utils.HashPassword(user.Password)
-	if err != nil {
-		log.Println("Unable to hash password")
-		return nil, err
-	}
-	user.Password = hashedPassword
+	// hashedPassword, err := utils.HashPassword(user.Password)
+	// if err != nil {
+	// 	log.Println("Unable to hash password")
+	// 	return nil, err
+	// }
+	// user.Password = hashedPassword
 	users, err := usi.repo.RegisterUser(user)
 	if err != nil {
 		log.Println("User not added, adminService file")
@@ -697,7 +710,7 @@ func (usi *UserServiceImpl) RegisterUser(user *entities.User) (*entities.User, e
 }
 
 // NewUserService function returns UserServiceImpl of type UserService Interface
-func NewUserService(repo repository.UserRepository, jwt *middleware.JwtUtil) interfaces.UserService {
+func NewUserService(repo repository.UserRepository, jwt *middleware.JwtUtil) UserService {
 	return &UserServiceImpl{
 		repo: repo,
 		jwt:  jwt,
