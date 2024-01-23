@@ -427,8 +427,7 @@ func (ur *UserRepositoryImpl) RegisterUser(user *entities.User) (*entities.User,
 
 	result := ur.DB.Create(&user)
 	if result.Error != nil {
-		log.Println("Unable to add user, AdminRepositoryImpl package")
-		fmt.Println("--------------------------", result.Error, "================================")
+		// log.Println("Unable to add user, AdminRepositoryImpl package")
 		return nil, result.Error
 	}
 
