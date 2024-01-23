@@ -1,6 +1,6 @@
 module gobus
 
-go 1.21.1
+go 1.17
 
 require (
 	github.com/DATA-DOG/go-sqlmock v1.5.2
