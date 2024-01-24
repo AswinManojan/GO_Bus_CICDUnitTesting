@@ -34,7 +34,7 @@ jobs:
         
         if [ -n "$PID" ]; then
           echo "Stopping existing process with PID $PID"
-          kill $PID
+          pkill -f "go run main.go" $PID
           sleep 2
           echo "Process stopped"
         else
