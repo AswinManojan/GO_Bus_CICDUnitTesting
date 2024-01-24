@@ -38,9 +38,8 @@ jobs:
     #     else
     #       echo "No existing process found"
     #     fi
-
     - name: Start new Process in the background
       run: |
-        nohup go run main.go &
+        nohup go run main.go > /dev/null 2>&1 &
         disown
       
