@@ -42,5 +42,5 @@ jobs:
     #     fi
 
     - name: Start new Process in the background
-      run: go run main.go
+      run: go run main.go &
       
