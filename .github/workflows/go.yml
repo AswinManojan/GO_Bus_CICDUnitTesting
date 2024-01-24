@@ -28,18 +28,16 @@ jobs:
     - name: env file building
       run: echo -e "${{ secrets.PROD_ENV_FILE }}" > .env
 
-    # - name: Find and stop existing process
-    #   run: |
-    #     PID=$(pgrep -f "go run main.go")
-        
-    #     if [ -n "$PID" ]; then
-    #       echo "Stopping existing process with PID $PID"
-    #       pkill -f "go run main.go" $PID
-    #       sleep 2
-    #       echo "Process stopped"
-    #     else
-    #       echo "No existing process found"
-    #     fi
+    - name: Find and stop existing process
+      run: |
+        PID=$(pgrep -f "go run main.go")
+        if [ -n "$PID" ]; then
+          echo "Stopping existing process with PID $PID"
+          kill $PID
+          sleep 2 # Wait for the process to stop
+        else
+          echo "No existing process found"
+        fi
 
     - name: Start new Process in the background
       run: go run main.go &
