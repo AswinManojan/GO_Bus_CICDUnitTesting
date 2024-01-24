@@ -37,4 +37,4 @@ jobs:
       #       echo "No existing process found"
       #     fi
       - name: Start new process in the background
-        run: RUNNER_TRACKING_ID="" && go run main.go &
+        run: go run main.go &
